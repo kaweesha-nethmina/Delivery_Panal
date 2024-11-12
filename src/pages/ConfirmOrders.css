@@ -1,0 +1,140 @@
+.confirm-orders-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.orders-table th, .orders-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.orders-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+/* Style for making rows appear clickable */
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+    background-color: #f1f1f1;
+}
+
+.approve-button, .delete-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.approve-button {
+    background-color: #28a745;
+    margin-right: 5px;
+}
+
+.approve-button:hover {
+    background-color: #218838;
+}
+
+.delete-button {
+    background-color: #dc3545;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #ffffff;
+    border: 5px solid #ffd700;
+    border-radius: 10px;
+    padding: 20px;
+    width: 350px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.modal-content p {
+    font-size: 1em;
+    margin: 10px 0;
+}
+
+/* File input styling */
+.file-input-container {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.file-input-container label {
+    font-size: 1em;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.file-input-container input[type="file"] {
+    display: block;
+    font-size: 0.9em;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.file-name {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+}
+
+/* Submit Button */
+.submit-button {
+    padding: 10px 20px;
+    background-color: #ffd700;
+    color: #333;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #e6be00;
+}

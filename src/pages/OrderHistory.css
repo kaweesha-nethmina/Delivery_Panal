@@ -1,0 +1,44 @@
+.order-history-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.orders-table th, .orders-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.orders-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.orders-table input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 10px;
+}
+
+.send-button {
+    padding: 10px 20px;
+    background-color: #ffd700;
+    color: #333;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 1em;
+    margin-left: 490px;
+    transition: background-color 0.3s ease;
+}
+
+.send-button:hover {
+    background-color: #e6be00;
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase'; // Ensure the path is correct
+import { db } from '../firebase';
 import { collection, getDocs, query, where, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import './NewOrders.css';
@@ -52,6 +52,22 @@ const NewOrders = () => {
         }
     };
 
+    const sendNotification = async (order) => {
+        if (order.userEmail) {
+            try {
+                await addDoc(collection(db, 'notifications'), {
+                    userEmail: order.userEmail,
+                    message: `Your order with ID: ${order.id} is on the way!`,
+                    orderId: order.id,
+                    timestamp: new Date(),
+                    read: false,
+                });
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        }
+    };
+
     const handlePickupSelectedOrders = async () => {
         try {
             const ordersToProcess = selectedOrders.map(async (orderId) => {
@@ -62,6 +78,9 @@ const NewOrders = () => {
                         ...orderToMove,
                         status: 'Picked Up',
                     });
+
+                    // Send notification to the user
+                    await sendNotification(orderToMove);
 
                     // Delete order from delivery collection
                     await deleteOrderFromDelivery(orderId);
@@ -79,7 +98,6 @@ const NewOrders = () => {
 
     return (
         <div className="new-orders-container">
-            
             <table className="orders-table">
                 <thead>
                     <tr>
@@ -100,7 +118,7 @@ const NewOrders = () => {
                         <th>Quantity</th>
                         <th>Price</th>
                         <th>Total Price</th>
-                        <th>Address</th> {/* New Address column */}
+                        <th>Address</th>
                         <th>Delivery Option</th>
                         <th>Timestamp</th>
                     </tr>
@@ -122,7 +140,7 @@ const NewOrders = () => {
                                 <td>{order.items.reduce((total, item) => total + item.quantity, 0)}</td>
                                 <td>{order.items.map(item => formatPrice(item.price)).join(', ')}</td>
                                 <td>{order.totalPrice ? formatPrice(order.totalPrice) : 'N/A'}</td>
-                                <td>{order.address || 'N/A'}</td> {/* Display address here */}
+                                <td>{order.address || 'N/A'}</td>
                                 <td>{order.deliveryOption || 'N/A'}</td>
                                 <td>
                                     {order.timestamp ? (

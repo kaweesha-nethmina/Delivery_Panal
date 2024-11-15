@@ -53,6 +53,22 @@ const ConfirmOrders = () => {
         }
     };
 
+    const sendNotification = async (order) => {
+        try {
+            if (order.userEmail) {
+                await addDoc(collection(db, 'notifications'), {
+                    userEmail: order.userEmail,
+                    message: 'Thank you for choosing us!',
+                    orderId: order.id,
+                    timestamp: new Date(),
+                    read: false
+                });
+            }
+        } catch (error) {
+            console.error("Error sending notification:", error);
+        }
+    };
+
     const markAsDelivered = async (order) => {
         try {
             // Add the order to confirmedOrders collection
@@ -64,8 +80,11 @@ const ConfirmOrders = () => {
             // Delete the order from pickupOrders collection
             await deleteOrderFromPickupOrders(order.id);
 
+            // Send notification to the user
+            await sendNotification(order);
+
             // Show an alert to confirm
-            alert('Order marked as delivered');
+            alert('Order marked as delivered and notification sent.');
         } catch (error) {
             console.error("Error marking order as delivered:", error);
             alert('Failed to mark order as delivered');
@@ -74,7 +93,6 @@ const ConfirmOrders = () => {
 
     return (
         <div className="confirm-orders-container">
-            
             <table className="orders-table">
                 <thead>
                     <tr>

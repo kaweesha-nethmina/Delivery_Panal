@@ -5,6 +5,9 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: left;
     position: relative;
+    margin-left: 200px;
+    width: 800px;
+    margin-top: 100px;
 }
 
 .profile-details p {
@@ -23,6 +26,6 @@
     color: white;
     position: absolute;
     bottom: 20px;
-    left: 50%;
+    left: 80%;
     transform: translateX(-50%);
 }

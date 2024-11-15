@@ -74,7 +74,7 @@ const ConfirmOrders = () => {
 
     return (
         <div className="confirm-orders-container">
-            <h2>Confirm Orders</h2>
+            
             <table className="orders-table">
                 <thead>
                     <tr>

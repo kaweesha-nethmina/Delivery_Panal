@@ -32,7 +32,7 @@ const OrderHistory = () => {
 
     return (
         <div className="order-history-container">
-            <h2>Order History</h2>
+            
             <table className="orders-table">
                 <thead>
                     <tr>

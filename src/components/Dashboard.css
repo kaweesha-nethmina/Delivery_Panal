@@ -90,3 +90,7 @@ body {
     font-size: 1.2em;
     color: #ffc107;
 }
+.order-count{
+    font-weight: 600;
+    font-size: 30px;
+}

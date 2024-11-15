@@ -79,7 +79,7 @@ const NewOrders = () => {
 
     return (
         <div className="new-orders-container">
-            <h2>New Orders</h2>
+            
             <table className="orders-table">
                 <thead>
                     <tr>

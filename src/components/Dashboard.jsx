@@ -7,13 +7,13 @@ import './Dashboard.css';
 
 const Dashboard = () => {
     const [newOrdersCount, setNewOrdersCount] = useState(0);
-    const [processingOrdersCount, setProcessingOrdersCount] = useState(0);
+    const [deliveredOrdersCount, setDeliveredOrdersCount] = useState(0);
     const [pastOrdersCount, setPastOrdersCount] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
     const db = getFirestore();
 
-    const isDashboardRoot = location.pathname === "/dashboard";
+    const isDashboardRoot = location.pathname === "/dashboard"; // Updated path check
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -22,20 +22,19 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchCounts = async () => {
             try {
-                // Fetch new orders count from `delivery` collection
-                const newOrdersCollection = collection(db, 'delivery');
+                // Fetch new orders count
+                const newOrdersCollection = collection(db, 'newOrders');
                 const newOrdersSnapshot = await getDocs(newOrdersCollection);
                 setNewOrdersCount(newOrdersSnapshot.size);
 
-                // Fetch processing orders count from `pickupOrders` collection
-                const pickupOrdersCollection = collection(db, 'pickupOrders');
-                const pickupOrdersSnapshot = await getDocs(pickupOrdersCollection);
-                setProcessingOrdersCount(pickupOrdersSnapshot.size);
-
-                // Fetch past orders count from `confirmedOrders` collection where `deliveryOption` is "Delivery"
+                // Fetch delivered orders count
                 const confirmedOrdersCollection = collection(db, 'confirmedOrders');
-                const pastOrdersQuery = query(confirmedOrdersCollection, where("deliveryOption", "==", "Delivery"));
-                const pastOrdersSnapshot = await getDocs(pastOrdersQuery);
+                const deliveredOrdersQuery = query(confirmedOrdersCollection, where("status", "==", "Delivered"));
+                const deliveredOrdersSnapshot = await getDocs(deliveredOrdersQuery);
+                setDeliveredOrdersCount(deliveredOrdersSnapshot.size);
+
+                // Fetch past orders count (assuming all confirmed orders are past orders)
+                const pastOrdersSnapshot = await getDocs(confirmedOrdersCollection);
                 setPastOrdersCount(pastOrdersSnapshot.size);
             } catch (error) {
                 console.error("Error fetching order counts:", error);
@@ -52,30 +51,32 @@ const Dashboard = () => {
                 <Topbar />
                 <div className="content">
                     {isDashboardRoot ? (
+                        // Default content for the Dashboard path
                         <div className="dashboard-cards">
                             <div
                                 className="box new-order"
                                 onClick={() => handleNavigation('/dashboard/new-orders')}
                             >
-                                New Orders <span className="notification-icon">🔔</span>
+                                New Orders <span className="notification-icon">🔔</span><br />
                                 <span className="order-count">{newOrdersCount}</span>
                             </div>
                             <div
-                                className="box processing-orders"
+                                className="box delivered-orders"
                                 onClick={() => handleNavigation('/dashboard/confirm-orders')}
                             >
-                                Processing Orders <span className="notification-icon">🔔</span>
-                                <span className="order-count">{processingOrdersCount}</span>
+                                Delivered Orders <span className="notification-icon">🔔</span><br />
+                                <span className="order-count">{deliveredOrdersCount}</span>
                             </div>
                             <div
                                 className="box past-orders"
                                 onClick={() => handleNavigation('/dashboard/order-history')}
                             >
-                                Past Orders <span className="notification-icon">🔔</span>
+                                Past Orders <span className="notification-icon">🔔</span><br />
                                 <span className="order-count">{pastOrdersCount}</span>
                             </div>
                         </div>
                     ) : (
+                        // Render child components for other paths
                         <Outlet />
                     )}
                 </div>

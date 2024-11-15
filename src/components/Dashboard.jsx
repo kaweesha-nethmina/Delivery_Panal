@@ -23,7 +23,7 @@ const Dashboard = () => {
         const fetchCounts = async () => {
             try {
                 // Fetch new orders count
-                const newOrdersCollection = collection(db, 'newOrders');
+                const newOrdersCollection = collection(db, 'delivery');
                 const newOrdersSnapshot = await getDocs(newOrdersCollection);
                 setNewOrdersCount(newOrdersSnapshot.size);
 

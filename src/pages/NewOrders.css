@@ -1,6 +1,7 @@
 .new-orders-container {
     padding: 20px;
     font-family: Arial, sans-serif;
+    margin-left: 20px;
 }
 
 .orders-table {
@@ -61,7 +62,7 @@
     margin: 10px 0;
 }
 
-.picked-up-button {
+.pickup-button {
     padding: 10px 20px;
     background-color: #ffd700;
     color: #333;
@@ -73,6 +74,6 @@
     font-size: 1em;
 }
 
-.picked-up-button:hover {
+.pickup-button:hover {
     background-color: #e6be00;
 }

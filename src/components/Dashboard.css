@@ -1,40 +1,74 @@
+/* Global settings */
+body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
 .dashboard-container {
     display: flex;
-    font-family: Arial, sans-serif;
-    width: 1520px;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh; /* Full viewport height */
+    position: fixed; /* Fix sidebar to the left */
+    top: 0;
+    left: 0;
+    background-color: #1a1d20;
+    padding-top: 20px;
+    z-index: 1;
 }
 
 .main-content {
-    flex: 1;
-    background-color: #f8f9fa; 
+    margin-left: 250px; /* Offset for sidebar width */
+    width: calc(100% - 250px); /* Adjust width based on sidebar */
+    display: flex;
+    flex-direction: column;
+}
 
-
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 250px; /* Offset for sidebar width */
+    width: calc(100% - 250px); /* Adjust width based on sidebar */
+    background-color: #1a1d20;
+    padding: 20px;
+    z-index: 1;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .content {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
+    margin-top: 80px; /* Offset for topbar height */
     padding: 30px;
+    overflow-y: auto;
+    height: calc(100vh - 80px); /* Fill remaining height */
 }
 
-/* Container for the cards in Dashboard */
 .dashboard-cards {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    flex-wrap: nowrap; /* Keeps cards in a single row */
-    overflow-x: auto; /* Enables horizontal scroll if content overflows */
+    margin-left: 200px;
+    margin-top: 200px;
+    flex-wrap: nowrap;
     padding: 20px 0;
+    overflow-x: auto;
 }
 
-/* Box styling */
 .box {
     flex: 1;
-    min-width: 200px; /* Minimum width for responsiveness */
-    max-width: 250px; /* Limit max-width to fit in one row */
+    min-width: 200px;
+    max-width: 250px;
     padding: 40px;
     text-align: center;
+    
     font-size: 1.2em;
     background-color: #ffea04;
     color: #000000;
@@ -44,17 +78,15 @@
     position: relative;
 }
 
-/* Hover effect for the box */
 .box:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Notification icon styling */
 .notification-icon {
     position: absolute;
     top: 10px;
     right: 15px;
     font-size: 1.2em;
-    color: #ffc107; /* Yellow for contrast on blue */
+    color: #ffc107;
 }

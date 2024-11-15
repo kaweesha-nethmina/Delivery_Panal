@@ -1,39 +1,98 @@
 .reports-container {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+    width: 1200px;
 }
 
-.reports-table {
-    width: 100%;
-    border-collapse: collapse;
+.reports-container h2 {
+    font-size: 2rem;
+    color: #333;
     margin-bottom: 20px;
+    border-bottom: 2px solid #4caf50;
+    padding-bottom: 10px;
 }
 
-.reports-table th,
-.reports-table td {
+.controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.report-select {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
     border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-.reports-table th {
     background-color: #f4f4f4;
-    font-weight: bold;
 }
 
-.generate-report-button {
-    padding: 10px 20px;
-    background-color: #007bff;
+.button-group {
+    display: flex;
+    gap: 15px;
+}
+
+.export-button {
+    padding: 12px 25px;
+    background-color: #4caf50;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1rem;
     font-weight: bold;
-    color: white;
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    transition: background-color 0.3s ease;
+}
+
+.export-button:hover {
+    background-color: #45a049;
+}
+
+.chart-container {
+    width: 800px;
+    max-width: 900px;
+    margin: 20px auto;
+    height: 800px;
+    margin-bottom: -400px;
+}
+
+.chart-container canvas {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.total-income {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-top: -320px;
+    margin-bottom: 20px;
+}
+
+.table-container {
+    margin-top: 30px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    font-size: 1rem;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    color: #333;
 }

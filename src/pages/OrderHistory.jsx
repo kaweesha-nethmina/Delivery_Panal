@@ -1,59 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { db } from '../firebase'; // Ensure the path is correct
+import { collection, getDocs } from 'firebase/firestore';
 import './OrderHistory.css';
 
 const OrderHistory = () => {
-    const orders = [
-        {
-            id: 'OD294415',
-            userEmail: 'ovigalathure@gmail.com',
-            product: 'Sea Food Nasigorang',
-            quantity: 3,
-            price: 1500.0,
-            totalPrice: 4500.0,
-            timestamp: '11/10/2024, 6:58:14 PM',
-            city: 'Colombo',
-        },
-        {
-            id: 'OD243083',
-            userEmail: 'th.ja.rangi@gmail.com',
-            product: 'Egg & Vegetable Fried Rice',
-            quantity: 2,
-            price: 650.0,
-            totalPrice: 1300.0,
-            timestamp: '10/28/2024, 3:57:23 PM',
-            city: 'Kandy',
-        },
-        {
-            id: 'OD776996',
-            userEmail: 'th.ja.rangi@gmail.com',
-            product: 'Egg & Vegetable Fried Rice',
-            quantity: 2,
-            price: 650.0,
-            totalPrice: 1300.0,
-            timestamp: '10/28/2024, 3:32:56 PM',
-            city: 'Galle',
-        },
-    ];
+    const [orders, setOrders] = useState([]);
 
-    const [selectedOrders, setSelectedOrders] = useState([]);
+    useEffect(() => {
+        const fetchConfirmedOrders = async () => {
+            try {
+                const confirmedOrdersCollection = collection(db, 'confirmedOrders');
+                const snapshot = await getDocs(confirmedOrdersCollection);
+                const confirmedOrders = snapshot.docs
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }))
+                    .filter(order => order.deliveryOption === 'Delivery'); // Filter by deliveryOption
+                setOrders(confirmedOrders);
+            } catch (error) {
+                console.error('Error fetching confirmed orders:', error);
+            }
+        };
 
-    const toggleSelectAll = () => {
-        if (selectedOrders.length === orders.length) {
-            setSelectedOrders([]); // Deselect all
-        } else {
-            setSelectedOrders(orders.map(order => order.id)); // Select all
-        }
+        fetchConfirmedOrders();
+    }, []);
+
+    const formatPrice = (price) => {
+        return price !== undefined && price !== null ? parseFloat(price).toFixed(2) : 'N/A';
     };
-
-    const toggleSelectOrder = (id) => {
-        setSelectedOrders(prevSelected =>
-            prevSelected.includes(id)
-                ? prevSelected.filter(orderId => orderId !== id) // Deselect if already selected
-                : [...prevSelected, id] // Select if not already selected
-        );
-    };
-
-    const isAllSelected = selectedOrders.length === orders.length;
 
     return (
         <div className="order-history-container">
@@ -61,13 +36,6 @@ const OrderHistory = () => {
             <table className="orders-table">
                 <thead>
                     <tr>
-                        <th>
-                            <input
-                                type="checkbox"
-                                checked={isAllSelected}
-                                onChange={toggleSelectAll}
-                            />
-                        </th>
                         <th>Order ID</th>
                         <th>User Email</th>
                         <th>Product Name(s)</th>
@@ -75,37 +43,28 @@ const OrderHistory = () => {
                         <th>Price</th>
                         <th>Total Price</th>
                         <th>Timestamp</th>
-                        <th>City</th>
+                        <th>Address</th>
                     </tr>
                 </thead>
                 <tbody>
                     {orders.map((order) => (
                         <tr key={order.id}>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedOrders.includes(order.id)}
-                                    onChange={() => toggleSelectOrder(order.id)}
-                                />
-                            </td>
                             <td>{order.id}</td>
                             <td>{order.userEmail}</td>
-                            <td>{order.product}</td>
-                            <td>{order.quantity}</td>
-                            <td>{order.price.toFixed(2)}</td>
-                            <td>{order.totalPrice.toFixed(2)}</td>
-                            <td>{order.timestamp}</td>
-                            <td>{order.city}</td>
+                            <td>{order.product || order.items?.map(item => item.productName).join(', ')}</td>
+                            <td>{order.quantity || order.items?.reduce((total, item) => total + item.quantity, 0)}</td>
+                            <td>{formatPrice(order.price || order.items?.[0]?.price)}</td>
+                            <td>{order.totalPrice ? formatPrice(order.totalPrice) : 'N/A'}</td>
+                            <td>
+                                {order.timestamp?.seconds
+                                    ? new Date(order.timestamp.seconds * 1000).toLocaleString()
+                                    : 'N/A'}
+                            </td>
+                            <td>{order.address || 'N/A'}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <button
-                className="send-button"
-                onClick={() => alert(`Selected orders sent to admin!`)}
-            >
-                Send to Admin
-            </button>
         </div>
     );
 };

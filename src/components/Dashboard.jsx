@@ -1,17 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import './Dashboard.css';
 
 const Dashboard = () => {
+    const [newOrdersCount, setNewOrdersCount] = useState(0);
+    const [processingOrdersCount, setProcessingOrdersCount] = useState(0);
+    const [pastOrdersCount, setPastOrdersCount] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
-    const isDashboardRoot = location.pathname === "/dashboard"; // Updated path check
+    const db = getFirestore();
+
+    const isDashboardRoot = location.pathname === "/dashboard";
 
     const handleNavigation = (path) => {
         navigate(path);
     };
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            try {
+                // Fetch new orders count from `delivery` collection
+                const newOrdersCollection = collection(db, 'delivery');
+                const newOrdersSnapshot = await getDocs(newOrdersCollection);
+                setNewOrdersCount(newOrdersSnapshot.size);
+
+                // Fetch processing orders count from `pickupOrders` collection
+                const pickupOrdersCollection = collection(db, 'pickupOrders');
+                const pickupOrdersSnapshot = await getDocs(pickupOrdersCollection);
+                setProcessingOrdersCount(pickupOrdersSnapshot.size);
+
+                // Fetch past orders count from `confirmedOrders` collection where `deliveryOption` is "Delivery"
+                const confirmedOrdersCollection = collection(db, 'confirmedOrders');
+                const pastOrdersQuery = query(confirmedOrdersCollection, where("deliveryOption", "==", "Delivery"));
+                const pastOrdersSnapshot = await getDocs(pastOrdersQuery);
+                setPastOrdersCount(pastOrdersSnapshot.size);
+            } catch (error) {
+                console.error("Error fetching order counts:", error);
+            }
+        };
+
+        fetchCounts();
+    }, [db]);
 
     return (
         <div className="dashboard-container">
@@ -20,29 +52,30 @@ const Dashboard = () => {
                 <Topbar />
                 <div className="content">
                     {isDashboardRoot ? (
-                        // Default content for the Dashboard path
                         <div className="dashboard-cards">
                             <div
                                 className="box new-order"
                                 onClick={() => handleNavigation('/dashboard/new-orders')}
                             >
                                 New Orders <span className="notification-icon">🔔</span>
+                                <span className="order-count">{newOrdersCount}</span>
                             </div>
                             <div
-                                className="box delivered-orders"
+                                className="box processing-orders"
                                 onClick={() => handleNavigation('/dashboard/confirm-orders')}
                             >
-                                Delivered Orders <span className="notification-icon">🔔</span>
+                                Processing Orders <span className="notification-icon">🔔</span>
+                                <span className="order-count">{processingOrdersCount}</span>
                             </div>
                             <div
                                 className="box past-orders"
                                 onClick={() => handleNavigation('/dashboard/order-history')}
                             >
                                 Past Orders <span className="notification-icon">🔔</span>
+                                <span className="order-count">{pastOrdersCount}</span>
                             </div>
                         </div>
                     ) : (
-                        // Render child components for other paths
                         <Outlet />
                     )}
                 </div>

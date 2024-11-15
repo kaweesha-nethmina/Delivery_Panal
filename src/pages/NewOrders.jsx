@@ -1,46 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { db } from '../firebase'; // Ensure the path is correct
+import { collection, getDocs, query, where, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 import './NewOrders.css';
 
 const NewOrders = () => {
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [orders, setOrders] = useState([]);
+    const [selectedOrders, setSelectedOrders] = useState([]);
+    const navigate = useNavigate();
 
-    const orders = [
-        {
-            id: 'OD294415',
-            userEmail: 'ovigalathure@gmail.com',
-            product: 'Sea Food Nasigorang',
-            quantity: 3,
-            price: 1500.0,
-            totalPrice: 4500.0,
-            timestamp: '11/10/2024, 6:58:14 PM',
-        },
-        {
-            id: 'OD243083',
-            userEmail: 'th.ja.rangi@gmail.com',
-            product: 'Egg & Vegetable Fried Rice',
-            quantity: 2,
-            price: 650.0,
-            totalPrice: 1300.0,
-            timestamp: '10/28/2024, 3:57:23 PM',
-        },
-        {
-            id: 'OD776996',
-            userEmail: 'th.ja.rangi@gmail.com',
-            product: 'Egg & Vegetable Fried Rice',
-            quantity: 2,
-            price: 650.0,
-            totalPrice: 1300.0,
-            timestamp: '10/28/2024, 3:32:56 PM',
-        },
-        // Add more orders as needed
-    ];
+    useEffect(() => {
+        const fetchDeliveryOrders = async () => {
+            try {
+                const deliveryCollection = collection(db, 'delivery');
+                const deliverySnapshot = await getDocs(deliveryCollection);
+                const deliveryOrders = deliverySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setOrders(deliveryOrders);
+            } catch (error) {
+                console.error('Error fetching delivery orders:', error);
+            }
+        };
 
-    const openModal = (order) => {
-        setSelectedOrder(order);
+        fetchDeliveryOrders();
+    }, []);
+
+    const formatPrice = (price) => {
+        return !isNaN(price) ? parseFloat(price).toFixed(2) : 'N/A';
     };
 
-    const closeModal = () => {
-        setSelectedOrder(null);
+    const toggleSelectOrder = (orderId) => {
+        setSelectedOrders(prevSelectedOrders =>
+            prevSelectedOrders.includes(orderId)
+                ? prevSelectedOrders.filter(id => id !== orderId)
+                : [...prevSelectedOrders, orderId]
+        );
+    };
+
+    const deleteOrderFromDelivery = async (orderId) => {
+        const q = query(collection(db, 'delivery'), where("id", "==", orderId));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const docRef = doc(db, 'delivery', querySnapshot.docs[0].id);
+            await deleteDoc(docRef);
+            setOrders(prevOrders => prevOrders.filter(order => order.id !== docRef.id));
+        } else {
+            console.log("No order found with the specified orderId");
+        }
+    };
+
+    const handlePickupSelectedOrders = async () => {
+        try {
+            const ordersToProcess = selectedOrders.map(async (orderId) => {
+                const orderToMove = orders.find(order => order.id === orderId);
+                if (orderToMove) {
+                    // Add order to pickupOrders
+                    await addDoc(collection(db, 'pickupOrders'), {
+                        ...orderToMove,
+                        status: 'Picked Up',
+                    });
+
+                    // Delete order from delivery collection
+                    await deleteOrderFromDelivery(orderId);
+                }
+            });
+            await Promise.all(ordersToProcess); // Wait for all operations to complete
+            setSelectedOrders([]); // Clear selected orders after pickup
+
+            // Navigate to /dashboard/confirm-orders
+            navigate('/dashboard/confirm-orders');
+        } catch (error) {
+            console.error('Error moving selected orders to pickupOrders:', error);
+        }
     };
 
     return (
@@ -49,45 +83,74 @@ const NewOrders = () => {
             <table className="orders-table">
                 <thead>
                     <tr>
+                        <th>
+                            <input
+                                type="checkbox"
+                                onChange={() => {
+                                    setSelectedOrders(
+                                        selectedOrders.length === orders.length ? [] : orders.map(order => order.id)
+                                    );
+                                }}
+                                checked={selectedOrders.length === orders.length && orders.length > 0}
+                            />
+                        </th>
                         <th>Order ID</th>
                         <th>User Email</th>
                         <th>Product Name(s)</th>
                         <th>Quantity</th>
                         <th>Price</th>
                         <th>Total Price</th>
+                        <th>Address</th> {/* New Address column */}
+                        <th>Delivery Option</th>
                         <th>Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {orders.map((order) => (
-                        <tr key={order.id} onClick={() => openModal(order)}>
-                            <td>{order.id}</td>
-                            <td>{order.userEmail}</td>
-                            <td>{order.product}</td>
-                            <td>{order.quantity}</td>
-                            <td>{order.price.toFixed(2)}</td>
-                            <td>{order.totalPrice.toFixed(2)}</td>
-                            <td>{order.timestamp}</td>
+                    {orders.length > 0 ? (
+                        orders.map((order) => (
+                            <tr key={order.id}>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedOrders.includes(order.id)}
+                                        onChange={() => toggleSelectOrder(order.id)}
+                                    />
+                                </td>
+                                <td>{order.id}</td>
+                                <td>{order.userEmail}</td>
+                                <td>{order.items.map(item => item.productName).join(', ')}</td>
+                                <td>{order.items.reduce((total, item) => total + item.quantity, 0)}</td>
+                                <td>{order.items.map(item => formatPrice(item.price)).join(', ')}</td>
+                                <td>{order.totalPrice ? formatPrice(order.totalPrice) : 'N/A'}</td>
+                                <td>{order.address || 'N/A'}</td> {/* Display address here */}
+                                <td>{order.deliveryOption || 'N/A'}</td>
+                                <td>
+                                    {order.timestamp ? (
+                                        <>
+                                            {new Date(order.timestamp.seconds * 1000).toLocaleDateString()}{' '}
+                                            {new Date(order.timestamp.seconds * 1000).toLocaleTimeString()}
+                                        </>
+                                    ) : (
+                                        'N/A'
+                                    )}
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="10">No new orders found</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
 
-            {selectedOrder && (
-                <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <h3>Order Details</h3>
-                        <p><strong>Order ID:</strong> {selectedOrder.id}</p>
-                        <p><strong>User Email:</strong> {selectedOrder.userEmail}</p>
-                        <p><strong>Product:</strong> {selectedOrder.product}</p>
-                        <p><strong>Quantity:</strong> {selectedOrder.quantity}</p>
-                        <p><strong>Price:</strong> {selectedOrder.price.toFixed(2)}</p>
-                        <p><strong>Total Price:</strong> {selectedOrder.totalPrice.toFixed(2)}</p>
-                        <p><strong>Timestamp:</strong> {selectedOrder.timestamp}</p>
-                        <button className="picked-up-button" onClick={closeModal}>Picked Up</button>
-                    </div>
-                </div>
-            )}
+            <button
+                className="pickup-button"
+                onClick={handlePickupSelectedOrders}
+                disabled={selectedOrders.length === 0}
+            >
+                Noted
+            </button>
         </div>
     );
 };
